@@ -1,0 +1,52 @@
+flowchart TB
+    subgraph Client["Client Layer"]
+        C[HTTP Client]
+    end
+
+    subgraph API["API Layer"]
+        H[MetadataHandler]
+        F[Fiber App]
+    end
+
+    subgraph Business["Business Layer"]
+        S[MetadataService]
+        FAC[MetadataFactory]
+    end
+
+    subgraph Data["Data Access Layer"]
+        R[MetadataRepository]
+        G[GORM]
+    end
+
+    subgraph DB["Database Layer"]
+        P[(PostgreSQL)]
+    end
+
+    %% Connections
+    C -->|"HTTP Requests"| F
+    F -->|"Routes"| H
+    H -->|"Validates/Formats"| S
+    FAC -->|"Creates"| S
+    FAC -->|"Creates"| R
+    S -->|"Business Logic"| R
+    R -->|"DB Operations"| G
+    G -->|"SQL"| P
+
+    %% File mappings
+    H -.-|"handler.go"| S
+    S -.-|"service.go"| R
+    R -.-|"repository.go"| G
+    FAC -.-|"factory.go"| S
+    G -.-|"db.go"| P
+    F -.-|"main.go"| H
+
+    %% Styling
+    classDef handler fill:#f9f,stroke:#333,stroke-width:2px
+    classDef service fill:#bbf,stroke:#333,stroke-width:2px
+    classDef repo fill:#bfb,stroke:#333,stroke-width:2px
+    classDef db fill:#ddd,stroke:#333,stroke-width:2px
+
+    class H handler
+    class S,FAC service
+    class R,G repo
+    class P db
